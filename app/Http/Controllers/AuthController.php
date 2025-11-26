@@ -48,9 +48,14 @@ class AuthController extends Controller
             'email'=>'admin@admin.com',
             'password' => Hash::make('admin'),
             'activo' => true,
-            'rol_usuario' => 'admin'
+            'rol_usuario' => 'administrador'
         ]);
 
         return "Admin creado con exito:)!";
+    }
+
+    public function logout(){
+        Auth::logout();
+        return to_route('login');
     }
 }
