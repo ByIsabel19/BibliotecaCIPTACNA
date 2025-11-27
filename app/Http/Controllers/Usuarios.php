@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class Usuarios extends Controller
 {
@@ -11,7 +13,9 @@ class Usuarios extends Controller
      */
     public function index()
     {
-        return view('modules.Usuarios.index');
+        $titulo="Usuarios";
+        $item= User::all();
+        return view('modules.usuarios.index', compact('item','titulo'));
     }
 
     /**
@@ -19,7 +23,8 @@ class Usuarios extends Controller
      */
     public function create()
     {
-        //
+        $titulo="Usuario nuevo";
+        return view('modules.usuarios.create', compact('titulo'));
     }
 
     /**
@@ -27,7 +32,15 @@ class Usuarios extends Controller
      */
     public function store(Request $request)
     {
-        //
+        User::create([
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'password' => Hash::make($request->password),
+            'activo' => true,
+            'rol_usuario' => $request->rol_usuario
+        ]);
+
+        return to_route('usuarios');
     }
 
     /**
@@ -43,7 +56,9 @@ class Usuarios extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $item=User::find($id);
+        $titulo="Editar usuario";
+        return view('modules.usuarios.edit', compact('item','titulo'));
     }
 
     /**
@@ -51,7 +66,12 @@ class Usuarios extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $item=User::find($id);
+        $item->name = $request->name;
+        $item->email = $request->email;
+        $item->rol_usuario = $request->rol_usuario;
+        $item->save();
+        return to_route('usuarios');
     }
 
     /**
@@ -60,5 +80,16 @@ class Usuarios extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function tbody(){
+        $item=User::all();
+        return view('modules.usuarios.tbody', compact('item'));
+    }
+
+    public function estado($id, $estado){
+        $item=User::find($id);
+        $item->activo = $estado;
+        return $item->save();
     }
 }
