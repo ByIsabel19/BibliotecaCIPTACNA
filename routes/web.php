@@ -42,11 +42,23 @@ Route::prefix('categorias')->middleware('auth')->group(function(){
 });
 
 Route::prefix('autores')->middleware('auth')->group(function(){
-    Route::get('/',[Autores::class, 'index'])->name('autores');
+    Route::get('/', [Autores::class, 'index'])->name('autores');
+    Route::get('/create', [Autores::class, 'create'])->name('autores.create');
+    Route::post('/store', [Autores::class, 'store'])->name('autores.store');
+    Route::get('/show/{id}', [Autores::class, 'show'])->name('autores.show');
+    Route::delete('/destroy/{id}', [Autores::class, 'destroy'])->name('autores.destroy');
+    Route::get('/edit/{id}', [Autores::class, 'edit'])->name('autores.edit');
+    Route::put('/update/{id}', [Autores::class, 'update'])->name('autores.update');
 });
 
 Route::prefix('universidades')->middleware('auth')->group(function(){
-    Route::get('/',[Universidades::class, 'index'])->name('universidades');
+    Route::get('/', [Universidades::class, 'index'])->name('universidades');
+    Route::get('/create', [Universidades::class, 'create'])->name('universidades.create');
+    Route::post('/store', [Universidades::class, 'store'])->name('universidades.store');
+    Route::get('/show/{id}', [Universidades::class, 'show'])->name('universidades.show');
+    Route::delete('/destroy/{id}', [Universidades::class, 'destroy'])->name('universidades.destroy');
+    Route::get('/edit/{id}', [Universidades::class, 'edit'])->name('universidades.edit');
+    Route::put('/update/{id}', [Universidades::class, 'update'])->name('universidades.update');
 });
 
 Route::prefix('capitulos')->middleware('auth')->group(function() {

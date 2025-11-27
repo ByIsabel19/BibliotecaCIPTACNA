@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\universidad;
 use Illuminate\Http\Request;
 
 class Universidades extends Controller
@@ -11,7 +12,9 @@ class Universidades extends Controller
      */
     public function index()
     {
-        return view('modules.Universidades.index');
+        $titulo = 'Administrar universidades';
+        $item = universidad::all();
+        return view('modules.Universidades.index', compact('titulo', 'item'));
     }
 
     /**
@@ -19,7 +22,8 @@ class Universidades extends Controller
      */
     public function create()
     {
-        //
+        $titulo = 'Crear universidad';
+        return view('modules.Universidades.create', compact('titulo'));
     }
 
     /**
@@ -27,7 +31,10 @@ class Universidades extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $item = new universidad();
+        $item->nombre_universidad = $request->nombre_universidad;
+        $item->save();
+        return to_route('universidades');
     }
 
     /**
@@ -35,7 +42,9 @@ class Universidades extends Controller
      */
     public function show(string $id)
     {
-        //
+        $titulo = 'Eliminar universidad';
+        $item = universidad::find($id);
+        return view('modules.Universidades.show', compact('item', 'titulo'));
     }
 
     /**
@@ -43,7 +52,9 @@ class Universidades extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $titulo = "Editar universidad";
+        $item = universidad::find($id);
+        return view('modules.Universidades.edit', compact('item','titulo'));
     }
 
     /**
@@ -51,7 +62,10 @@ class Universidades extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $item = universidad::find($id);
+        $item->nombre_universidad = $request->nombre_universidad;
+        $item->save();
+        return to_route('universidades');
     }
 
     /**
@@ -59,6 +73,8 @@ class Universidades extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $item = universidad::find($id);
+        $item->delete();
+        return to_route('universidades');
     }
 }

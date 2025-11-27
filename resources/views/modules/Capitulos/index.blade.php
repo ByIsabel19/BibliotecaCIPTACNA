@@ -25,13 +25,13 @@
               <table class="table datatable">
                 <thead>
                   <tr>
-                    <th>Nombre del capítulo</th>
-                    <th>Acciones</th>
+                    <th class="text-center">Nombre del capítulo</th>
+                    <th class="text-center">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   @foreach ($item as $item)
-                  <tr>
+                  <tr class="text-center">
                     <td>{{$item->nombre_capitulo}}</td>
                     <td>
                       <a href="{{route("capitulos.edit",$item->id)}}" class="btn btn-warning">
