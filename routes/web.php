@@ -25,9 +25,14 @@ Route::middleware("auth")->group(function(){
 
 
 Route::prefix('items')->middleware('auth')->group(function(){
-    Route::get('/nuevo-item',[Items::class, 'index'])->name('items-nuevo');
+    Route::get('/', [Items::class, 'index'])->name('items');
+    Route::get('/create', [Items::class, 'create'])->name('items.create');
+    Route::post('/store', [Items::class, 'store'])->name('items.store');
+    Route::get('/edit/{id}', [Items::class, 'edit'])->name('items.edit');
+    Route::put('/update/{id}', [Items::class, 'update'])->name('items.update');
+    Route::get('/show/{id}', [Items::class, 'show'])->name('items.show');
+    Route::delete('/destroy/{id}', [Items::class, 'destroy'])->name('items.destroy');
 });
-
 Route::prefix('detalle')->middleware('auth')->group(function(){
     Route::get('/detalle-item',[detalle_item::class, 'index'])->name('detalle-item');
 });

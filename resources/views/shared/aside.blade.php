@@ -15,12 +15,12 @@
         </a>
         <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="{{route("items-nuevo")}}">
+            <a href="{{route("items.create")}}">
               <i class="fa-solid fa-plus"></i><span>Agregar Item</span>
             </a>
           </li>
           <li>
-            <a href="{{route("detalle-item")}}">
+            <a href="{{route("items")}}">
               <i class="fa-solid fa-magnifying-glass"></i><span>Consultar Item</span>
             </a>
           </li>
