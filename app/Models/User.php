@@ -47,4 +47,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function lector()
+    {
+        return $this->hasOne(lector::class, 'id_usuario');
+    }
+
 }

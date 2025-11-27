@@ -1,41 +1,67 @@
-  @extends('layouts.main')
+@extends('layouts.main')
 
-  @section('titulo', $titulo)
-  @section('contenido')
-    <main id="main" class="main">
+@section('titulo', $titulo)
+@section('contenido')
+<main id="main" class="main">
 
     <div class="pagetitle">
       <h1>Usuarios</h1>
-    </div><!-- End Page Title -->
+    </div>
 
     <section class="section">
       <div class="row">
         <div class="col-lg-12">
+
           <div class="card">
             <div class="card-body">
+
               <h5 class="card-title">Administrar usuarios</h5>
               <p>Adminstrar las cuentas y roles de los usuarios</p>
-              <!-- Table with stripped rows -->
-              <a href="{{ route("usuarios.create")}}" class="btn btn-primary">
+
+              <!-- BOTÓN AGREGAR NUEVO -->
+              <a href="{{ route('usuarios.create') }}" class="btn btn-primary mb-3">
                 <i class="fa-solid fa-user-plus"></i> Agregar nuevo
               </a>
-              <hr>
+
+              <!-- ========================= -->
+              <!--   TABLA DE ADMINISTRADORES -->
+              <!-- ========================= -->
+              <h4 class="mt-4">Administradores</h4>
               <table class="table datatable">
                 <thead>
                   <tr>
                     <th class="text-center">Correo electrónico</th>
                     <th class="text-center">Nombre</th>
                     <th class="text-center">Rol</th>
-                    <th class="text-center">Cambio password</th>
                     <th class="text-center">Activo</th>
                     <th class="text-center">Editar</th>
                   </tr>
                 </thead>
-                <tbody id="tbody-usuarios">
-                  @include('modules.usuarios.tbody');                  
+                <tbody id="tbody-admins">
+                  @include('modules.usuarios.admins')
                 </tbody>
               </table>
-              <!-- End Table with stripped rows -->
+
+              <!-- ========================= -->
+              <!--   TABLA DE LECTORES        -->
+              <!-- ========================= -->
+              <h4 class="mt-4">Lectores</h4>
+              <table class="table datatable">
+                  <thead>
+                      <tr>
+                          <th class="text-center">Correo electrónico</th>
+                          <th class="text-center">Nombre</th>
+                          <th class="text-center">Rol</th>
+                          <th class="text-center">Teléfono</th>
+                          <th class="text-center">CIP</th>
+                          <th class="text-center">Activo</th>
+                          <th class="text-center">Editar</th>
+                      </tr>
+                  </thead>
+                  <tbody id="tbody-lectores">
+                      @include('modules.usuarios.lectores')
+                  </tbody>
+              </table>
 
             </div>
           </div>
@@ -44,11 +70,12 @@
       </div>
     </section>
 
-  </main> 
+</main>
 @endsection
 
+
 @push('scripts')
-  <script>
+<script>
 
     function recargar_tbody(){
       $.ajax({
@@ -59,7 +86,7 @@
         }
       });
     }
-    
+
     function cambiar_estado(id,estado){
       $.ajax({
         type:"GET",
@@ -72,7 +99,7 @@
         }
       })
     }
-    
+
     $(document).ready(function(){
       $('.form-check-input').on("change", function(){
         let id=$(this).attr("id");
@@ -80,6 +107,6 @@
         cambiar_estado(id,estado);
       });
     });
-  </script>
-    
+
+</script>
 @endpush

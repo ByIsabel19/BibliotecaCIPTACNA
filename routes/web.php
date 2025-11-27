@@ -84,6 +84,8 @@ Route::prefix('usuarios')->middleware('auth')->group(function(){
     Route::put('/update/{id}', [Usuarios::class, 'update'])->name('usuarios.update');
     Route::get('/tbody',[Usuarios::class, 'tbody'])->name('usuarios.tbody');
     Route::get('/cambiar-estado/{id}/{estado}',[Usuarios::class, 'estado'])->name('usuarios.estado');
+    Route::get('cambiar-estado/{id}/{estado}', [Usuarios::class, 'cambiar_estado']);
+
 });
 
 Route::prefix('carreras')->middleware('auth')->group(function() {

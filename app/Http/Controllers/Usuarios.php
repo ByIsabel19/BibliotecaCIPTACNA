@@ -3,93 +3,170 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\lector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class Usuarios extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listado general
      */
     public function index()
     {
-        $titulo="Usuarios";
-        $item= User::all();
-        return view('modules.usuarios.index', compact('item','titulo'));
+        $titulo = "Administrar usuarios";
+
+        // Cargamos solo usuarios (administradores + lectores)
+        $item = User::all();
+
+        return view('modules.usuarios.index', compact('titulo', 'item'));
     }
 
+
     /**
-     * Show the form for creating a new resource.
+     * Formulario de creación
      */
     public function create()
     {
-        $titulo="Usuario nuevo";
+        $titulo = "Crear usuario";
         return view('modules.usuarios.create', compact('titulo'));
     }
 
+
     /**
-     * Store a newly created resource in storage.
+     * Guardar usuario (admin o lector)
      */
     public function store(Request $request)
     {
-        User::create([
-            'name'=>$request->name,
-            'email'=>$request->email,
-            'password' => Hash::make($request->password),
-            'activo' => true,
-            'rol_usuario' => $request->rol_usuario
-        ]);
+        // Crear usuario base
+        $usuario = new User();
+        $usuario->name = $request->name;
+        $usuario->email = $request->email;
+        $usuario->password = Hash::make($request->password);
+        $usuario->rol_usuario = $request->rol_usuario;
+        $usuario->activo = 1; // por defecto activo
+        $usuario->save();
+
+        // Si el usuario es lector, guardar en tabla lector
+        if ($request->rol_usuario == "lector") {
+            lector::create([
+                'telefono_lector' => $request->telefono_lector,
+                'cip_lector'      => $request->cip_lector,
+                'id_usuario'      => $usuario->id
+            ]);
+        }
 
         return to_route('usuarios');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
     /**
-     * Show the form for editing the specified resource.
+     * Mostrar formulario de edición
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        $item=User::find($id);
-        $titulo="Editar usuario";
-        return view('modules.usuarios.edit', compact('item','titulo'));
+        $titulo = "Editar usuario";
+        $item = User::find($id);
+        $lector = lector::where('id_usuario', $id)->first(); // si existe
+
+        return view('modules.usuarios.edit', compact('item','lector','titulo'));
     }
 
+
     /**
-     * Update the specified resource in storage.
+     * Actualizar usuario
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $item=User::find($id);
-        $item->name = $request->name;
-        $item->email = $request->email;
-        $item->rol_usuario = $request->rol_usuario;
-        $item->save();
+        $usuario = User::find($id);
+
+        $usuario->name = $request->name;
+        $usuario->email = $request->email;
+        $usuario->rol_usuario = $request->rol_usuario;
+
+        // Actualizar contraseña solo si se envía
+        if ($request->password) {
+            $usuario->password = Hash::make($request->password);
+        }
+
+        $usuario->save();
+
+        // SI ES LECTOR → actualizar o crear registro lector
+        if ($request->rol_usuario == 'lector') {
+
+            $lector = lector::where('id_usuario',$id)->first();
+
+            if ($lector) {
+                // actualizar
+                $lector->telefono_lector = $request->telefono_lector;
+                $lector->cip_lector = $request->cip_lector;
+                $lector->save();
+            } else {
+                // crear
+                lector::create([
+                    'telefono_lector' => $request->telefono_lector,
+                    'cip_lector'      => $request->cip_lector,
+                    'id_usuario'      => $id
+                ]);
+            }
+
+        } else {
+
+            // SI AHORA ES ADMIN → borrar registro de lector si existe
+            lector::where('id_usuario',$id)->delete();
+        }
+
         return to_route('usuarios');
     }
 
+
     /**
-     * Remove the specified resource from storage.
+     * Mostrar pantalla de eliminar usuario
      */
-    public function destroy(string $id)
+    public function show($id)
     {
-        //
+        $titulo = "Eliminar usuario";
+        $item = User::find($id);
+        return view('modules.usuarios.show', compact('item','titulo'));
     }
 
-    public function tbody(){
-        $item=User::all();
+
+    /**
+     * Eliminar usuario y lector si existe
+     */
+    public function destroy($id)
+    {
+        lector::where('id_usuario',$id)->delete(); // si es lector
+        User::destroy($id);
+        return to_route('usuarios');
+    }
+
+
+    /**
+     * Ajax: cambiar estado activo/inactivo
+     */
+    public function cambiar_estado($id, $estado)
+    {
+        $usuario = User::find($id);
+
+        if(!$usuario){
+            return 0;
+        }
+
+        $usuario->activo = $estado;
+        $usuario->save();
+
+        return 1;
+    }
+
+
+    /**
+     * Ajax: Recargar tbody
+     */
+    public function tbody()
+    {
+        $item = User::all();
         return view('modules.usuarios.tbody', compact('item'));
     }
 
-    public function estado($id, $estado){
-        $item=User::find($id);
-        $item->activo = $estado;
-        return $item->save();
-    }
 }

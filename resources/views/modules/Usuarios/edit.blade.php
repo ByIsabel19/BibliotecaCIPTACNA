@@ -1,46 +1,80 @@
-  @extends('layouts.main')
+@extends('layouts.main')
 
-  @section('titulo', $titulo)
-  @section('contenido')
-    <main id="main" class="main">
+@section('titulo', $titulo)
 
-    <div class="pagetitle">
-      <h1>Editar usuario</h1>
-    </div><!-- End Page Title -->
+@section('contenido')
+<main id="main" class="main">
 
-    <section class="section">
-      <div class="row">
-        <div class="col-lg-12">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Ingresa los nuevos datos del usuario</h5>
-              <form action="{{route("usuarios.update",$item->id)}}" method="POST">
-                @csrf
-                @method("PUT")
-                <label for="name">Nombre del usuario</label>
-                <input type="text" class="form-control" required name="name" id="name" value="{{$item->name}}">
-                <label for="email">Correo electronico</label>
-                <input type="text" class="form-control" name="email" id="email" required value="{{$item->email}}">
-                <label for="rol_usuario">Rol de usuario</label>
-                <select name="rol_usuario" id="rol_usuario" class="form-select" >
-                    <option value="">Selecciona el rol</option>
-                    @if ($item->rol_usuario=='administrador')
-                        <option value="administrador" selected>Administrador</option>
-                        <option value="lector">Lector</option> 
-                    @else
-                        <option value="administrador">Administrador</option>
-                        <option value="lector" selected>Lector</option>
-                    @endif
-                </select>
+<div class="pagetitle">
+  <h1>Editar usuario</h1>
+</div>
 
-                <button class="btn btn-warning mt-3">Actualizar</button>
-                <a href="{{route("usuarios")}}" class="btn btn-info mt-3">Cancelar</a>
-              </form>
+<section class="section">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+
+          <h5 class="card-title">Actualizar datos del usuario</h5>
+
+          <form action="{{ route('usuarios.update', $item->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+
+            <label>Nombre completo</label>
+            <input type="text" class="form-control" name="name" 
+              value="{{ $item->name }}" required>
+
+            <label class="mt-2">Correo electrónico</label>
+            <input type="email" class="form-control" name="email" 
+              value="{{ $item->email }}" required>
+
+            <label class="mt-2">Nueva contraseña (opcional)</label>
+            <input type="password" class="form-control" name="password">
+
+            <label class="mt-2">Rol de usuario</label>
+            <select class="form-control" name="rol_usuario" id="rol_usuario">
+              <option value="administrador" {{ $item->rol_usuario=='administrador'?'selected':'' }}>Administrador</option>
+              <option value="lector" {{ $item->rol_usuario=='lector'?'selected':'' }}>Lector</option>
+            </select>
+
+            {{-- Campos para lector --}}
+            <div id="campos_lector" style="display: {{ $item->rol_usuario=='lector' ? 'block' : 'none' }};">
+
+              <label class="mt-3">Teléfono</label>
+              <input type="text" class="form-control" 
+                name="telefono_lector" 
+                value="{{ $lector->telefono_lector ?? '' }}">
+
+              <label class="mt-2">CIP</label>
+              <input type="text" class="form-control" 
+                name="cip_lector"
+                value="{{ $lector->cip_lector ?? '' }}">
+
             </div>
-          </div>
+
+            <button class="btn btn-warning mt-3">Actualizar</button>
+            <a href="{{ route('usuarios') }}" class="btn btn-secondary mt-3">Cancelar</a>
+
+          </form>
+
         </div>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
 
-  </main> 
-  @endsection
+</main>
+@endsection
+
+@push('scripts')
+<script>
+  document.getElementById('rol_usuario').addEventListener('change', function(){
+      if(this.value === 'lector'){
+          document.getElementById('campos_lector').style.display = 'block';
+      } else {
+          document.getElementById('campos_lector').style.display = 'none';
+      }
+  });
+</script>
+@endpush
