@@ -14,8 +14,9 @@
           <div class="card">
             <div class="card-body">
               <h5 class="card-title">Ingresa los nuevos datos de la categoría</h5>
-              <form action="{{route("categorias.store")}}" method="POST">
+              <form action="{{route("categorias.update", $item->id)}}" method="POST">
                 @csrf
+                @method("PUT")
                 <label for="">Nombre de categoría</label>
                 <input type="text" class="form-control" 
                 required name="nombre_categoria" id="nombre_categoria" value="{{$item->nombre_categoria}}">
