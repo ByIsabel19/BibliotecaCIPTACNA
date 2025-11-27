@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\categoria;
 use Illuminate\Http\Request;
 
 class Categorias extends Controller
@@ -11,7 +12,9 @@ class Categorias extends Controller
      */
     public function index()
     {
-        return view('modules.Categorias.index');
+        $titulo='Administrar categorias';
+        $item = categoria::all();
+        return view('modules.Categorias.index', compact('titulo','item'));
     }
 
     /**
@@ -19,7 +22,8 @@ class Categorias extends Controller
      */
     public function create()
     {
-        //
+        $titulo = 'Crear categoría';
+        return view('modules.categorias.create', compact('titulo'));
     }
 
     /**
@@ -27,7 +31,10 @@ class Categorias extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $item= new categoria();
+        $item->nombre_categoria = $request->nombre_categoria;
+        $item->save();
+        return to_route('categorias');
     }
 
     /**
@@ -35,7 +42,9 @@ class Categorias extends Controller
      */
     public function show(string $id)
     {
-        //
+        $titulo='Eliminar categoria';
+        $item=categoria::find($id);
+        return view('modules.categorias.show', compact('item','titulo'));
     }
 
     /**
@@ -43,7 +52,9 @@ class Categorias extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $titulo = "Editar categoria";
+        $item= categoria::find($id);
+        return view('modules.categorias.edit', compact('item','titulo'));
     }
 
     /**
@@ -59,6 +70,8 @@ class Categorias extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $item = categoria::find($id);
+        $item->delete();
+        return to_route('categorias');
     }
 }
