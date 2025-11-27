@@ -39,7 +39,6 @@ Route::prefix('categorias')->middleware('auth')->group(function(){
     Route::delete('/destroy/{id}',[Categorias::class, 'destroy'])->name('categorias.destroy');
     Route::get('/edit/{id}',[Categorias::class, 'edit'])->name('categorias.edit');
     Route::put('/update/{id}',[Categorias::class, 'update'])->name('categorias.update');
-
 });
 
 Route::prefix('autores')->middleware('auth')->group(function(){
@@ -50,8 +49,14 @@ Route::prefix('universidades')->middleware('auth')->group(function(){
     Route::get('/',[Universidades::class, 'index'])->name('universidades');
 });
 
-Route::prefix('capitulos')->middleware('auth')->group(function(){
-    Route::get('/',[Capitulos::class, 'index'])->name('capitulos');
+Route::prefix('capitulos')->middleware('auth')->group(function() {
+    Route::get('/', [Capitulos::class, 'index'])->name('capitulos');
+    Route::get('/create', [Capitulos::class, 'create'])->name('capitulos.create');
+    Route::post('/store', [Capitulos::class, 'store'])->name('capitulos.store');
+    Route::get('/show/{id}', [Capitulos::class, 'show'])->name('capitulos.show');
+    Route::delete('/destroy/{id}', [Capitulos::class, 'destroy'])->name('capitulos.destroy');
+    Route::get('/edit/{id}', [Capitulos::class, 'edit'])->name('capitulos.edit');
+    Route::put('/update/{id}', [Capitulos::class, 'update'])->name('capitulos.update');
 });
 
 Route::prefix('reportes')->middleware('auth')->group(function(){

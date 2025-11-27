@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\capitulo;
 use Illuminate\Http\Request;
 
 class Capitulos extends Controller
@@ -11,7 +12,9 @@ class Capitulos extends Controller
      */
     public function index()
     {
-        return view('modules.Capitulos.index');
+        $titulo = "Listado de Capítulos";
+        $item = capitulo::all();
+        return view('modules.capitulos.index', compact('item','titulo'));
     }
 
     /**
@@ -19,7 +22,8 @@ class Capitulos extends Controller
      */
     public function create()
     {
-        //
+       $titulo = "Crear Nuevo Capítulo";
+       return view('modules.capitulos.create', compact('titulo'));
     }
 
     /**
@@ -27,7 +31,10 @@ class Capitulos extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $item= new capitulo();
+        $item->nombre_capitulo = $request->nombre_capitulo;
+        $item->save();
+        return to_route('capitulos');
     }
 
     /**
@@ -35,7 +42,9 @@ class Capitulos extends Controller
      */
     public function show(string $id)
     {
-        //
+        $titulo='Eliminar capitulo';
+        $item=capitulo::find($id);
+        return view('modules.capitulos.show', compact('item','titulo'));
     }
 
     /**
@@ -43,7 +52,9 @@ class Capitulos extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $titulo = "Editar categoria";
+        $item= capitulo::find($id);
+        return view('modules.capitulos.edit', compact('item','titulo'));
     }
 
     /**
@@ -51,7 +62,10 @@ class Capitulos extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $item = capitulo::find($id);
+        $item->nombre_capitulo = $request->nombre_capitulo;
+        $item->save();
+        return to_route('capitulos');
     }
 
     /**
@@ -59,6 +73,8 @@ class Capitulos extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $item = capitulo::find($id);
+        $item->delete();
+        return to_route('capitulos');
     }
 }
