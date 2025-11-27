@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Autores;
 use App\Http\Controllers\Capitulos;
+use App\Http\Controllers\Carreras;
 use App\Http\Controllers\Categorias;
 use App\Http\Controllers\Dashboard;
 use App\Http\Controllers\detalle_item;
@@ -83,5 +84,14 @@ Route::prefix('usuarios')->middleware('auth')->group(function(){
     Route::put('/update/{id}', [Usuarios::class, 'update'])->name('usuarios.update');
     Route::get('/tbody',[Usuarios::class, 'tbody'])->name('usuarios.tbody');
     Route::get('/cambiar-estado/{id}/{estado}',[Usuarios::class, 'estado'])->name('usuarios.estado');
+});
 
+Route::prefix('carreras')->middleware('auth')->group(function() {
+    Route::get('/', [Carreras::class, 'index'])->name('carreras');
+    Route::get('/create', [Carreras::class, 'create'])->name('carreras.create');
+    Route::post('/store', [Carreras::class, 'store'])->name('carreras.store');
+    Route::get('/show/{id}', [Carreras::class, 'show'])->name('carreras.show');
+    Route::delete('/destroy/{id}', [Carreras::class, 'destroy'])->name('carreras.destroy');
+    Route::get('/edit/{id}', [Carreras::class, 'edit'])->name('carreras.edit');
+    Route::put('/update/{id}', [Carreras::class, 'update'])->name('carreras.update');
 });

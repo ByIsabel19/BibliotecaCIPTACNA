@@ -50,6 +50,13 @@
       </li><!-- End Contact Page Nav -->
 
       <li class="nav-item">
+        <a class="nav-link collapsed" href="{{ route('carreras') }}">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <span>Carreras</span>
+        </a>
+      </li>
+     
+      <li class="nav-item">
         <a class="nav-link collapsed" href="{{route("capitulos")}}">
           <i class="fa-solid fa-helmet-safety"></i>
           <span>Capítulos</span>
