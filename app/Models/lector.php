@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class lector extends Model
 {
     protected $table = 'lector';
+    protected $primaryKey = 'id_lector';
     protected $fillable = [
         'telefono_lector',
         'cip_lector',
