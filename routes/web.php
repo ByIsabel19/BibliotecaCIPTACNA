@@ -6,6 +6,7 @@ use App\Http\Controllers\Capitulos;
 use App\Http\Controllers\Carreras;
 use App\Http\Controllers\Categorias;
 use App\Http\Controllers\Dashboard;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\detalle_item;
 use App\Http\Controllers\Items;
 use App\Http\Controllers\reportes;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/crear-admin', [AuthController::class, 'crearAdmin']);
+
+Route::get('/dashboard', [Dashboard::class, 'index'])->name('dashboard');
 
 /*
 |--------------------------------------------------------------------------
