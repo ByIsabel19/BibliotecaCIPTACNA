@@ -17,20 +17,43 @@ class item extends Model
         'disco_item'
     ];
 
-    public function categoria(){
-        return $this->belongsTo(categoria::class, 'id_categoria');
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class, 'id_categoria');
     }
 
-    public function autores(){
-        return $this->belongsToMany(
-            autor::class,
-            'autoritem',
+    public function autores()
+    {
+        return $this->belongsToMany(Autor::class, 'autoritem', 'id_item', 'id_autor');
+    }
+
+    public function detalle()
+    {
+        return $this->hasOne(Detalle::class, 'id_item');
+    }
+
+    public function universidad()
+    {
+        return $this->hasOneThrough(
+            Universidad::class,
+            Detalle::class,
             'id_item',
-            'id_autor'
+            'id',
+            'id',
+            'id_universidad'
         );
     }
 
-    public function detalle(){
-        return $this->hasOne(detalle::class, 'id_item');
+    public function carrera()
+    {
+        return $this->hasOneThrough(
+            Carrera::class,
+            Detalle::class,
+            'id_item',
+            'id',
+            'id',
+            'id_carrera'
+        );
     }
+
 }

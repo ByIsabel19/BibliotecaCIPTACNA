@@ -110,7 +110,7 @@ Route::prefix('capitulos')->middleware('auth')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| CARRERAS (CORREGIDO)
+| CARRERAS
 |--------------------------------------------------------------------------
 */
 
@@ -122,6 +122,17 @@ Route::prefix('carreras')->middleware('auth')->group(function () {
     Route::delete('/destroy/{id}', [Carreras::class, 'destroy'])->name('carreras.destroy');
     Route::get('/edit/{id}', [Carreras::class, 'edit'])->name('carreras.edit');
     Route::put('/update/{id}', [Carreras::class, 'update'])->name('carreras.update');
+});
+
+/*
+|--------------------------------------------------------------------------
+| REPORTES
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('reportes')->middleware('auth')->group(function () {
+    Route::get('/', [reportes::class, 'index'])->name('reportes');
+    Route::post('/generar', [reportes::class, 'generar'])->name('reportes.generar');
 });
 
 /*
@@ -148,14 +159,4 @@ Route::prefix('usuarios')->middleware('auth')->group(function () {
 
 Route::prefix('detalle')->middleware('auth')->group(function () {
     Route::get('/detalle-item', [detalle_item::class, 'index'])->name('detalle-item');
-});
-
-/*
-|--------------------------------------------------------------------------
-| REPORTES
-|--------------------------------------------------------------------------
-*/
-
-Route::prefix('reportes')->middleware('auth')->group(function () {
-    Route::get('/', [reportes::class, 'index'])->name('reportes');
 });
