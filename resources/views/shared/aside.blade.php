@@ -50,7 +50,7 @@
       </li><!-- End Contact Page Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{{ route('carreras') }}">
+        <a class="nav-link collapsed" href="{{ route('carreras.index') }}">
           <i class="fa-solid fa-graduation-cap"></i>
           <span>Carreras</span>
         </a>

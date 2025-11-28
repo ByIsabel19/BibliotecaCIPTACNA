@@ -110,12 +110,12 @@ Route::prefix('capitulos')->middleware('auth')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| CARRERAS
+| CARRERAS (CORREGIDO)
 |--------------------------------------------------------------------------
 */
 
 Route::prefix('carreras')->middleware('auth')->group(function () {
-    Route::get('/', [Carreras::class, 'index'])->name('carreras');
+    Route::get('/', [Carreras::class, 'index'])->name('carreras.index');
     Route::get('/create', [Carreras::class, 'create'])->name('carreras.create');
     Route::post('/store', [Carreras::class, 'store'])->name('carreras.store');
     Route::get('/show/{id}', [Carreras::class, 'show'])->name('carreras.show');

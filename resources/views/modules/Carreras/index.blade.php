@@ -30,15 +30,15 @@
               </tr>
             </thead>
             <tbody>
-              @foreach ($item as $item)
+              @foreach ($carreras as $item)
                 <tr>
-                  <td>{{$item->nombre_carrera}}</td>
-                  <td>{{$item->capitulo->nombre_capitulo}}</td>
+                  <td>{{ $item->nombre_carrera }}</td>
+                  <td>{{ $item->capitulo->nombre_capitulo ?? 'Sin capítulo' }}</td>
                   <td>
-                    <a href="{{route('carreras.edit', $item->id)}}" class="btn btn-warning">
+                    <a href="{{ route('carreras.edit', $item->id) }}" class="btn btn-warning">
                       <i class="fa-solid fa-pen-to-square"></i>
                     </a>
-                    <a href="{{route('carreras.show', $item->id)}}" class="btn btn-danger">
+                    <a href="{{ route('carreras.show', $item->id) }}" class="btn btn-danger">
                       <i class="fa-solid fa-trash-can"></i>
                     </a>
                   </td>
