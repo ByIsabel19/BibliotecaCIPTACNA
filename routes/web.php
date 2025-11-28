@@ -2,14 +2,18 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Autores;
+use App\Http\Controllers\AutoresController;
 use App\Http\Controllers\Capitulos;
+use App\Http\Controllers\CapitulosController;
 use App\Http\Controllers\Carreras;
+use App\Http\Controllers\CarrerasController;
 use App\Http\Controllers\Categorias;
 use App\Http\Controllers\Dashboard;
 use App\Http\Controllers\detalle_item;
 use App\Http\Controllers\Items;
 use App\Http\Controllers\reportes;
 use App\Http\Controllers\Universidades;
+use App\Http\Controllers\UniversidadesController;
 use App\Http\Controllers\Usuarios;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +37,22 @@ Route::prefix('items')->middleware('auth')->group(function(){
     Route::get('/show/{id}', [Items::class, 'show'])->name('items.show');
     Route::delete('/destroy/{id}', [Items::class, 'destroy'])->name('items.destroy');
 });
+
+Route::post('/autores/store-ajax', [Autores::class, 'storeAjax'])->name('autores.storeAjax')->middleware('auth');
+Route::post('/universidades/store-ajax', [Universidades::class, 'storeAjax'])->name('universidades.storeAjax')->middleware('auth');
+Route::post('/capitulos/store-ajax', [CapitulosController::class, 'storeAjax'])->name('capitulos.storeAjax')->middleware('auth');
+Route::post('/carreras/store-ajax', [Carreras::class, 'storeAjax'])->name('carreras.storeAjax')->middleware('auth');
+
+// Rutas para creación rápida vía POST desde el formulario de ítems
+Route::post('/autores/crear-rapido', [Autores::class, 'crearRapido'])->name('autores.crear-rapido');
+Route::post('/universidades/crear-rapido', [Universidades::class, 'crearRapido'])->name('universidades.crear-rapido');
+Route::post('/carreras/crear-rapido', [Carreras::class, 'crearRapido'])->name('carreras.crear-rapido');
+
+// AJAX para agregar desde Items
+Route::post('/autores/ajax', [Autores::class,'storeAjax'])->name('autores.ajax');
+Route::post('/universidades/ajax', [Universidades::class,'storeAjax'])->name('universidades.ajax');
+Route::post('/carreras/ajax', [Carreras::class,'storeAjax'])->name('carreras.ajax');
+
 Route::prefix('detalle')->middleware('auth')->group(function(){
     Route::get('/detalle-item',[detalle_item::class, 'index'])->name('detalle-item');
 });
@@ -68,13 +88,13 @@ Route::prefix('universidades')->middleware('auth')->group(function(){
 });
 
 Route::prefix('capitulos')->middleware('auth')->group(function() {
-    Route::get('/', [Capitulos::class, 'index'])->name('capitulos');
-    Route::get('/create', [Capitulos::class, 'create'])->name('capitulos.create');
-    Route::post('/store', [Capitulos::class, 'store'])->name('capitulos.store');
-    Route::get('/show/{id}', [Capitulos::class, 'show'])->name('capitulos.show');
-    Route::delete('/destroy/{id}', [Capitulos::class, 'destroy'])->name('capitulos.destroy');
-    Route::get('/edit/{id}', [Capitulos::class, 'edit'])->name('capitulos.edit');
-    Route::put('/update/{id}', [Capitulos::class, 'update'])->name('capitulos.update');
+    Route::get('/', [CapitulosController::class, 'index'])->name('capitulos');
+    Route::get('/create', [CapitulosController::class, 'create'])->name('capitulos.create');
+    Route::post('/store', [CapitulosController::class, 'store'])->name('capitulos.store');
+    Route::get('/show/{id}', [CapitulosController::class, 'show'])->name('capitulos.show');
+    Route::delete('/destroy/{id}', [CapitulosController::class, 'destroy'])->name('capitulos.destroy');
+    Route::get('/edit/{id}', [CapitulosController::class, 'edit'])->name('capitulos.edit');
+    Route::put('/update/{id}', [CapitulosController::class, 'update'])->name('capitulos.update');
 });
 
 Route::prefix('reportes')->middleware('auth')->group(function(){

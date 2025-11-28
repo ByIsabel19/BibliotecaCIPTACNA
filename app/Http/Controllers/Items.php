@@ -5,62 +5,53 @@ namespace App\Http\Controllers;
 use App\Models\item;
 use App\Models\categoria;
 use App\Models\autor;
+use App\Models\universidad;
 use App\Models\carrera;
 use App\Models\capitulo;
-use App\Models\universidad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class Items extends Controller
 {
-    /**
-     * Mostrar listado + filtros
-     */
     public function index(Request $request)
     {
         $titulo = "Consultar ítems";
 
-        // Datos para filtros
         $categorias = categoria::all();
         $autores = autor::all();
+        $universidades = universidad::all();
         $carreras = carrera::all();
         $capitulos = capitulo::all();
-        $universidades = universidad::all();
-        $anios = item::select('anio_item')->distinct()->orderBy('anio_item', 'desc')->pluck('anio_item');
+        $anios = item::select('anio_item')->distinct()->orderBy('anio_item','desc')->pluck('anio_item');
 
-        // Consulta base
-        $query = item::query()->with([
-            'categoria',
-            'autor',
-            'carrera',
-            'capitulo',
-            'universidad'
-        ]);
+        $query = item::with(['categoria','autores','detalle.carrera.capitulo','detalle.universidad']);
 
-        // Aplicar filtros
         if ($request->categoria) {
             $query->where('id_categoria', $request->categoria);
         }
-
         if ($request->autor) {
-            $query->where('id_autor', $request->autor);
+            $query->whereHas('autores', function($q) use ($request){
+                $q->where('autor.id', $request->autor);
+            });
         }
-
-        if ($request->carrera) {
-            $query->where('id_carrera', $request->carrera);
-        }
-
-        if ($request->capitulo) {
-            $query->where('id_capitulo', $request->capitulo);
-        }
-
         if ($request->universidad) {
-            $query->where('id_universidad', $request->universidad);
+            $query->whereHas('detalle', function($q) use ($request){
+                $q->where('id_universidad', $request->universidad);
+            });
         }
-
+        if ($request->carrera) {
+            $query->whereHas('detalle', function($q) use ($request){
+                $q->where('id_carrera', $request->carrera);
+            });
+        }
+        if ($request->capitulo) {
+            $query->whereHas('detalle.carrera', function($q) use ($request){
+                $q->where('id_capitulo', $request->capitulo);
+            });
+        }
         if ($request->anio) {
             $query->where('anio_item', $request->anio);
         }
-
         if ($request->titulo) {
             $query->where('nombre_item', 'LIKE', '%' . $request->titulo . '%');
         }
@@ -68,124 +59,157 @@ class Items extends Controller
         $items = $query->get();
 
         return view('modules.Items.index', compact(
-            'titulo',
-            'items',
-            'categorias',
-            'autores',
-            'carreras',
-            'capitulos',
-            'universidades',
-            'anios'
+            'titulo','items','categorias','autores','universidades','carreras','capitulos','anios'
         ));
     }
 
-    /**
-     * Mostrar formulario para agregar item
-     */
     public function create()
     {
         $titulo = "Agregar ítem";
-
         $categorias = categoria::all();
         $autores = autor::all();
+        $universidades = universidad::all();
         $carreras = carrera::all();
         $capitulos = capitulo::all();
-        $universidades = universidad::all();
 
         return view('modules.Items.create', compact(
-            'titulo',
-            'categorias',
-            'autores',
-            'carreras',
-            'capitulos',
-            'universidades'
+            'titulo','categorias','autores','universidades','carreras','capitulos'
         ));
     }
 
-    /**
-     * Guardar nuevo item
-     */
     public function store(Request $request)
     {
-        $item = new item();
-        $item->id_categoria = $request->id_categoria;
-        $item->id_autor = $request->id_autor;
-        $item->id_carrera = $request->id_carrera;
-        $item->id_capitulo = $request->id_capitulo;
-        $item->id_universidad = $request->id_universidad;
-        $item->nombre_item = $request->nombre_item;
-        $item->anio_item = $request->anio_item;
-        $item->disco_item = $request->disco_item ?? 0;
-        $item->save();
+        $request->validate([
+            'id_categoria' => 'required|exists:categoria,id',
+            'nombre_item' => 'required|string|max:200',
+            'anio_item' => 'required|integer|min:1900|max:' . date('Y'),
+            'autores' => 'nullable|array',
+            'autores.*' => 'exists:autor,id',
+            'id_universidad' => 'nullable|exists:universidad,id',
+            'id_carrera' => 'nullable|exists:carrera,id',
+            'disco_item' => 'nullable|in:0,1'
+        ]);
 
-        return to_route('items');
+        DB::beginTransaction();
+        try {
+            $item = new item();
+            $item->id_categoria = $request->id_categoria;
+            $item->nombre_item = $request->nombre_item;
+            $item->anio_item = $request->anio_item;
+            $item->disco_item = $request->disco_item ?? 0;
+            $item->save();
+
+            if ($request->autores && is_array($request->autores)) {
+                // attach via pivot table
+                $item->autores()->attach($request->autores);
+            }
+
+            // detalle: insert using query builder (safe if detalle model lacks PK)
+            if ($request->id_universidad || $request->id_carrera) {
+                DB::table('detalle')->insert([
+                    'id_item' => $item->id,
+                    'id_universidad' => $request->id_universidad ?? null,
+                    'id_carrera' => $request->id_carrera ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+
+            DB::commit();
+            return to_route('items')->with('success','Ítem creado correctamente');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->withInput()->withErrors(['error' => 'Error al guardar el ítem: '.$e->getMessage()]);
+        }
     }
 
-    /**
-     * Mostrar vista de eliminar
-     */
-    public function show(string $id)
+    public function show($id)
     {
-        $titulo = 'Eliminar ítem';
-        $item = item::find($id);
-
-        return view('modules.Items.show', compact('item', 'titulo'));
+        $titulo = "Eliminar ítem";
+        $item = item::findOrFail($id);
+        return view('modules.Items.show', compact('titulo','item'));
     }
 
-    /**
-     * Mostrar formulario para editar
-     */
-    public function edit(string $id)
+    public function edit($id)
     {
         $titulo = "Editar ítem";
+        $item = item::findOrFail($id);
 
-        $item = item::find($id);
         $categorias = categoria::all();
         $autores = autor::all();
+        $universidades = universidad::all();
         $carreras = carrera::all();
         $capitulos = capitulo::all();
-        $universidades = universidad::all();
+
+        $itemAutores = $item->autores->pluck('id')->toArray();
 
         return view('modules.Items.edit', compact(
-            'item',
-            'titulo',
-            'categorias',
-            'autores',
-            'carreras',
-            'capitulos',
-            'universidades'
+            'titulo','item','categorias','autores','universidades','carreras','capitulos','itemAutores'
         ));
     }
 
-    /**
-     * Actualizar ítem
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $item = item::find($id);
+        $request->validate([
+            'id_categoria' => 'required|exists:categoria,id',
+            'nombre_item' => 'required|string|max:200',
+            'anio_item' => 'required|integer|min:1900|max:' . date('Y'),
+            'autores' => 'nullable|array',
+            'autores.*' => 'exists:autor,id',
+            'id_universidad' => 'nullable|exists:universidad,id',
+            'id_carrera' => 'nullable|exists:carrera,id',
+            'disco_item' => 'nullable|in:0,1'
+        ]);
 
-        $item->id_categoria = $request->id_categoria;
-        $item->id_autor = $request->id_autor;
-        $item->id_carrera = $request->id_carrera;
-        $item->id_capitulo = $request->id_capitulo;
-        $item->id_universidad = $request->id_universidad;
-        $item->nombre_item = $request->nombre_item;
-        $item->anio_item = $request->anio_item;
-        $item->disco_item = $request->disco_item ?? 0;
+        DB::beginTransaction();
+        try {
+            $item = item::findOrFail($id);
+            $item->id_categoria = $request->id_categoria;
+            $item->nombre_item = $request->nombre_item;
+            $item->anio_item = $request->anio_item;
+            $item->disco_item = $request->disco_item ?? 0;
+            $item->save();
 
-        $item->save();
+            // sync autores
+            $item->autores()->sync($request->autores ?? []);
 
-        return to_route('items');
+            // update detalle via query builder: delete existing detalle rows for this item and insert new (safe)
+            DB::table('detalle')->where('id_item', $item->id)->delete();
+            if ($request->id_universidad || $request->id_carrera) {
+                DB::table('detalle')->insert([
+                    'id_item' => $item->id,
+                    'id_universidad' => $request->id_universidad ?? null,
+                    'id_carrera' => $request->id_carrera ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+
+            DB::commit();
+            return to_route('items')->with('success','Ítem actualizado correctamente');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->withInput()->withErrors(['error' => 'Error al actualizar el ítem: '.$e->getMessage()]);
+        }
     }
 
-    /**
-     * Eliminar ítem
-     */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $item = item::find($id);
-        $item->delete();
+        $item = item::findOrFail($id);
 
-        return to_route('items');
+        DB::beginTransaction();
+        try {
+            // eliminar pivotes y detalle con query (evita errores de PK)
+            DB::table('autoritem')->where('id_item', $item->id)->delete();
+            DB::table('detalle')->where('id_item', $item->id)->delete();
+
+            $item->delete();
+
+            DB::commit();
+            return to_route('items')->with('success','Ítem eliminado correctamente');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Error al eliminar: '.$e->getMessage()]);
+        }
     }
 }

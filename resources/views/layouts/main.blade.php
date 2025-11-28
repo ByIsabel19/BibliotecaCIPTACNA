@@ -28,6 +28,7 @@
 
   <!-- Template Main CSS File -->
   <link href="{{asset('NiceAdmin/assets/css/style.css')}}" rel="stylesheet">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
   <!-- =======================================================
   * Template Name: NiceAdmin

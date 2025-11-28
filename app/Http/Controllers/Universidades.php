@@ -7,74 +7,60 @@ use Illuminate\Http\Request;
 
 class Universidades extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        $titulo = 'Administrar universidades';
+    public function index(){
+        $titulo = "Universidades";
         $item = universidad::all();
-        return view('modules.Universidades.index', compact('titulo', 'item'));
+        return view('modules.Universidades.index', compact('titulo','item'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        $titulo = 'Crear universidad';
+    public function create(){
+        $titulo = "Crear Universidad";
         return view('modules.Universidades.create', compact('titulo'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         $item = new universidad();
         $item->nombre_universidad = $request->nombre_universidad;
         $item->save();
-        return to_route('universidades');
+
+        return to_route('universidades')->with('success','Universidad creada');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $titulo = 'Eliminar universidad';
-        $item = universidad::find($id);
-        return view('modules.Universidades.show', compact('item', 'titulo'));
+    public function storeAjax(Request $request){
+        $item = universidad::create([
+            'nombre_universidad' => $request->nombre_universidad
+        ]);
+
+        return response()->json([
+            'id' => $item->id,
+            'nombre_universidad' => $item->nombre_universidad
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        $titulo = "Editar universidad";
-        $item = universidad::find($id);
-        return view('modules.Universidades.edit', compact('item','titulo'));
+    public function edit($id){
+        $titulo = "Editar Universidad";
+        $item = universidad::findOrFail($id);
+        return view('modules.Universidades.edit', compact('titulo','item'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $item = universidad::find($id);
+    public function update(Request $request, $id){
+        $item = universidad::findOrFail($id);
         $item->nombre_universidad = $request->nombre_universidad;
         $item->save();
-        return to_route('universidades');
+
+        return to_route('universidades')->with('success','Universidad actualizada');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $item = universidad::find($id);
+    public function show($id){
+        $titulo = "Eliminar Universidad";
+        $item = universidad::findOrFail($id);
+        return view('modules.Universidades.show', compact('titulo','item'));
+    }
+
+    public function destroy($id){
+        $item = universidad::findOrFail($id);
         $item->delete();
-        return to_route('universidades');
+
+        return to_route('universidades')->with('success','Universidad eliminada');
     }
 }
