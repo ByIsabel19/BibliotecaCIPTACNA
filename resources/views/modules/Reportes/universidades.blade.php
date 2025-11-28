@@ -6,39 +6,31 @@
     <style>
         body { font-family: sans-serif; font-size: 12px; }
         .title { text-align: center; font-size: 18px; margin-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #000; padding: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 5px; text-align: left; }
         th { background: #eee; }
     </style>
 </head>
 <body>
 
-<h2 class="title">Listado de Universidades</h2>
-
-@foreach ($universidades as $u)
-
-<h3>{{ $u->nombre_universidad }}</h3>
+<h2 class="title">Reporte de Universidades</h2>
 
 <table>
     <thead>
         <tr>
-            <th>Items vinculados</th>
+            <th>Universidad</th>
+            <th>Ítems vinculados</th>
         </tr>
     </thead>
     <tbody>
-        @forelse ($u->items as $item)
+        @foreach ($universidades as $u)
         <tr>
-            <td>{{ $item->titulo }}</td>
+            <td>{{ $u->nombre_universidad }}</td>
+            <td>{{ $u->cantidad_items }}</td>
         </tr>
-        @empty
-        <tr>
-            <td>No tiene items</td>
-        </tr>
-        @endforelse
+        @endforeach
     </tbody>
 </table>
-
-@endforeach
 
 </body>
 </html>

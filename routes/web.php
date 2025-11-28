@@ -11,8 +11,10 @@ use App\Http\Controllers\Items;
 use App\Http\Controllers\reportes;
 use App\Http\Controllers\Universidades;
 use App\Http\Controllers\Usuarios;
-
 use Illuminate\Support\Facades\Route;
+
+
+Route::get('/crear-admin', [AuthController::class, 'crearAdmin']);
 
 /*
 |--------------------------------------------------------------------------

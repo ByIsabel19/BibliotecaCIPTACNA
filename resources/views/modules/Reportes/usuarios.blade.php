@@ -51,8 +51,8 @@
         <tr>
             <td>{{ $l->usuario->email }}</td>
             <td>{{ $l->usuario->name }}</td>
-            <td>{{ $l->telefono }}</td>
-            <td>{{ $l->cip }}</td>
+            <td>{{ $l->telefono_lector }}</td>
+            <td>{{ $l->cip_lector }}</td>
             <td>{{ $l->usuario->activo == 0 ? 'Inactivo' : 'Activo' }}</td>
         </tr>
         @endforeach

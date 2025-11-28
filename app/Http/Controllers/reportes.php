@@ -11,52 +11,82 @@ use App\Models\Autor;
 use App\Models\Item;
 use App\Models\Carrera;
 use App\Models\Universidad;
+use Illuminate\Support\Facades\DB;
 
 class Reportes extends Controller
 {
-    // muestra la página con el selector y el iframe
     public function index()
     {
         $titulo = "Generación de Reportes";
-        // si tu vista está en resources/views/modules/Reportes/index.blade.php
         return view('modules.Reportes.index', compact('titulo'));
-        // Si moviste la vista a resources/views/reportes/index.blade.php
-        // return view('reportes.index', compact('titulo'));
     }
 
-    // recibe POST { tipo: "items" | "usuarios" | ... }
     public function generar(Request $request)
     {
         $tipo = $request->input('tipo');
 
         switch ($tipo) {
 
+            /* ===============================
+               📌 REPORTE DE USUARIOS + LECTORES
+               =============================== */
             case 'usuarios':
-                // usuarios (admins/otros) y lectores
-                $usuarios = User::where('rol_usuario', 'administrador')->get(); // o ajusta según tu lógica
-                $lectores = Lector::with('usuario')->get();
-                return Pdf::loadView('modules.Reportes.usuarios', compact('usuarios', 'lectores'))
-                          ->stream('usuarios.pdf');
+                $usuarios = User::all(); // O lo filtras si deseas
+                $lectores = Lector::select('id','id_usuario','telefono_lector','cip_lector')
+                  ->with('usuario')
+                  ->get();
+                return Pdf::loadView('modules.Reportes.usuarios',
+                        compact('usuarios', 'lectores'))
+                        ->stream('usuarios.pdf');
 
+            /* ===============================
+               📌 REPORTE DE AUTORES (PERFECTO)
+               =============================== */
             case 'autores':
                 $autores = Autor::withCount('items')->get();
-                return Pdf::loadView('modules.Reportes.autores', compact('autores'))
-                          ->stream('autores.pdf');
+                return Pdf::loadView('modules.Reportes.autores',
+                        compact('autores'))
+                        ->stream('autores.pdf');
 
+            /* ===============================
+               📌 REPORTE DE ITEMS - SIN UNIVERSIDAD
+               =============================== */
             case 'items':
-                $items = Item::with(['categoria', 'autores', 'carrera', 'universidad'])->get();
-                return Pdf::loadView('modules.Reportes.items', compact('items'))
-                          ->stream('items.pdf');
+                // Solo traemos lo necesario
+                $items = Item::with(['categoria', 'autores', 'carrera'])->get();
 
+                return Pdf::loadView('modules.Reportes.items', compact('items'))
+                        ->stream('items.pdf');
+
+            /* ===============================
+               📌 REPORTE DE CARRERAS (PERFECTO)
+               =============================== */
             case 'carreras':
                 $carreras = Carrera::with('capitulo')->get();
-                return Pdf::loadView('modules.Reportes.carreras', compact('carreras'))
-                          ->stream('carreras.pdf');
+                return Pdf::loadView('modules.Reportes.carreras',
+                        compact('carreras'))
+                        ->stream('carreras.pdf');
 
+
+            /* ===============================
+               📌 REPORTE DE UNIVERSIDADES (2 COLUMNAS)
+               =============================== */
             case 'universidades':
-                $universidades = Universidad::with('items')->get();
-                return Pdf::loadView('modules.Reportes.universidades', compact('universidades'))
-                          ->stream('universidades.pdf');
+
+                $universidades = DB::table('universidad')
+                    ->leftJoin('detalle', 'detalle.id_universidad', '=', 'universidad.id')
+                    ->leftJoin('item', 'item.id', '=', 'detalle.id_item')
+                    ->select('universidad.nombre_universidad', DB::raw('COUNT(item.id) as cantidad_items'))
+                    ->groupBy('universidad.nombre_universidad')
+                    ->orderBy('universidad.nombre_universidad')
+                    ->get();
+
+
+
+                return Pdf::loadView('modules.Reportes.universidades',
+                        compact('universidades'))
+                        ->stream('universidades.pdf');
+
 
             default:
                 return back()->with('error', 'Tipo de reporte no válido');
